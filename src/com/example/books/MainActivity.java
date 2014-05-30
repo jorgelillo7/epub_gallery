@@ -30,6 +30,11 @@ EditText tPass;
 		      {
 		    	  Toast.makeText(getApplicationContext(), tUser.getText() + ", " + tPass.getText(), 
 		    			   Toast.LENGTH_LONG).show();
+		    	  /* TODO dropbox login
+		    	   * https://www.dropbox.com/developers/blog/45/using-oauth-20-with-the-core-api
+		    	   * */
+		    	   
+		    	  
 		      }
 		    });
 		 
