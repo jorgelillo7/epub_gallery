@@ -141,7 +141,7 @@ final static public String ACCOUNT_PREFS_NAME = "Dropbox_Data";
             usertoken = accessToken;
           
             
-            Entry contact = null;
+           /* Entry contact = null;
 			try {
 				contact = mDBApi.metadata("/", 0, null, true, null);
 			} catch (DropboxException e) {
@@ -152,6 +152,33 @@ final static public String ACCOUNT_PREFS_NAME = "Dropbox_Data";
             List<Entry> CFolder = contact.contents;
             for (Entry entry : CFolder) {
             Log.i("DbExampleLog", "Filename: " + entry.fileName());}
+            */
+            
+       
+            	    Entry dropboxDir1 = null;
+					try {
+						dropboxDir1 = mDBApi.metadata("/", 0, null, true, null);
+					} catch (DropboxException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}    
+            	    for (Entry e : dropboxDir1.contents) {
+            	        if (!e.isDeleted) {
+            	            Log.i("Is Folder",String.valueOf(e.isDir));
+            	            if(e.isDir){
+            	            	List<Entry> files = e.contents;
+            	            	//Log.i("Item Date",files.);
+            	           
+            	            	
+            	            } else { // archivos raiz
+            	            Log.i("Item Name",e.fileName());
+            	           // Log.i("Item Date",(String) e.modified());
+            	            Log.i("Item Date",e.modified);
+            	            }
+            	        }
+            	    }
+            	    
+            
             
             mDBApi.getSession().finishAuthentication();
 			return "";
