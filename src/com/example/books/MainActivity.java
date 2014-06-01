@@ -6,12 +6,16 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import models.Book;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreProtocolPNames;
 import org.json.JSONObject;
+
+import util.DataManager;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.DropboxAPI.Entry;
@@ -139,6 +143,8 @@ final static public String ACCOUNT_PREFS_NAME = "Dropbox_Data";
 
             String accessToken = mDBApi.getSession().getOAuth2AccessToken();
             usertoken = accessToken;
+            
+            DataManager dm = DataManager.getInstance();
           
             
            /* Entry contact = null;
@@ -155,31 +161,10 @@ final static public String ACCOUNT_PREFS_NAME = "Dropbox_Data";
             */
             
        
-            	    Entry dropboxDir1 = null;
-					try {
-						dropboxDir1 = mDBApi.metadata("/", 0, null, true, null);
-					} catch (DropboxException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}    
-            	    for (Entry e : dropboxDir1.contents) {
-            	        if (!e.isDeleted) {
-            	            Log.i("Is Folder",String.valueOf(e.isDir));
-            	            if(e.isDir){
-            	            	List<Entry> files = e.contents;
-            	            	//Log.i("Item Date",files.);
-            	           
-            	            	
-            	            } else { // archivos raiz
-            	            Log.i("Item Name",e.fileName());
-            	           // Log.i("Item Date",(String) e.modified());
-            	            Log.i("Item Date",e.modified);
-            	            }
-            	        }
-            	    }
+            checkSubLevels("/");
             	    
             
-            
+            	    Log.i("Finish!!!!!!!!!!!!!!!!!!","");
             mDBApi.getSession().finishAuthentication();
 			return "";
            
@@ -199,6 +184,34 @@ final static public String ACCOUNT_PREFS_NAME = "Dropbox_Data";
         @Override
         protected void onProgressUpdate(Void... values) {}
     }
+	
+	public void checkSubLevels (String dir){
+		DataManager dm = DataManager.getInstance();
+		Entry dropboxDir = null;
+		try {
+			dropboxDir = mDBApi.metadata(dir, 0, null, true, null);
+		} catch (DropboxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+	    for (Entry e : dropboxDir.contents) {
+	        if (!e.isDeleted) {
+	           
+	            if(e.isDir){
+	            	checkSubLevels(e.path);
+	            	
+	            } else { 
+	            	Book book = new Book(e.fileName(), e.modified, e.mimeType);
+	  	            Log.i("Item Name",e.fileName());
+	  	            Log.i("Item Date",e.modified);
+	  	            Log.i("Item Date",e.mimeType);
+	  	           // dm.addBook(book);  //check!!!!!!!!!!!!!!!
+	            }
+	        }
+	    }
+		
+	}
 
 	  
 	
@@ -210,4 +223,6 @@ final static public String ACCOUNT_PREFS_NAME = "Dropbox_Data";
 	}
 	
 
+	
+	
 }
