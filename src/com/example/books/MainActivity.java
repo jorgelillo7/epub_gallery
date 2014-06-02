@@ -1,192 +1,243 @@
 package com.example.books;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URI;
+ 
 import java.util.ArrayList;
-import java.util.List;
-
 import models.Book;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.CoreProtocolPNames;
-import org.json.JSONObject;
-
 import util.DataManager;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.DropboxAPI.Entry;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.exception.DropboxException;
-import com.dropbox.client2.session.AccessTokenPair;
 import com.dropbox.client2.session.AppKeyPair;
 import com.dropbox.client2.session.Session.AccessType;
-import com.dropbox.client2.session.TokenPair;
-
-
+import com.google.gson.Gson;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
+/*TODO
+ *  Revisar guardado de sesion :S
+ *  Añadir máscara de carga
+ *  Mejorar iconos/backgrounds/estilos...
+ * 
+ * 
+ * 
+ * 
+ * */
 public class MainActivity extends Activity {
 
-Button   mButton;
-boolean mIsLoggedIn;
- 
-final static private String APP_KEY = "f49tm0zs6rb5oxv";
-final static private String APP_SECRET = "ncqjaox0hwp27eo";
-final static private AccessType ACCESS_TYPE = AccessType.DROPBOX;
-private DropboxAPI<AndroidAuthSession> mDBApi;
+	Button mButton, mButton2;
+	boolean mIsLoggedIn;
+	
+	//ProgressDialog barProgressDialog;
 
-private String provider;
-final static public String ACCOUNT_PREFS_NAME = "Dropbox_Data";
- 
+	final static private String APP_KEY = "f49tm0zs6rb5oxv";
+	final static private String APP_SECRET = "ncqjaox0hwp27eo";
+	final static private AccessType ACCESS_TYPE = AccessType.DROPBOX;
+	private DropboxAPI<AndroidAuthSession> mDBApi;
+	DataManager dm = DataManager.getInstance();
+	ArrayList<Book> allBooks = new ArrayList<Book>();
+	ArrayList<Book> epubBooks = new ArrayList<Book>();
 
+	final static public String ACCOUNT_PREFS_NAME = "Dropbox_Data";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.activity_main);
-		mButton = (Button)findViewById(R.id.bSend);
-	 
-		  AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
-		    AndroidAuthSession session = new AndroidAuthSession(appKeys, ACCESS_TYPE);
-		    mDBApi = new DropboxAPI<AndroidAuthSession>(session);
-
-		 //this is start authentication     
-		    mDBApi.getSession().startOAuth2Authentication(MainActivity.this);
-	    	   
-		    setLoggedIn(mDBApi.getSession().isLinked());
-    	  
-		mButton.setOnClickListener(new OnClickListener()
-		    {
-		      public void onClick(View v)
-		      {
-		   
-		    	  /* TODO dropbox login
-		    	   * https://www.dropbox.com/developers/blog/45/using-oauth-20-with-the-core-api
-		    	   * */
-		    	// And later in some initialization function:
-		    	 
-		    	  
-		      }
-		    });
-		 
-	    
-	}
-
+		mButton = (Button) findViewById(R.id.bSend);
+		mButton2 = (Button) findViewById(R.id.bClearSession);
+		
+		// check if we have an active session
+		SharedPreferences appSharedPrefs = PreferenceManager
+				.getDefaultSharedPreferences(this.getApplicationContext());
+		Gson gson = new Gson();
 	
-	
-	//This get call after StartAuthentication..
-	protected void onResume() {
-	    super.onResume();
-	    AndroidAuthSession session = mDBApi.getSession();
-	    // The next part must be inserted in the onResume() method of the
-	    // activity from which session.startAuthentication() was called, so
-	    // that Dropbox authentication completes properly.
-	    if (session.authenticationSuccessful()) {
-	        try {
-	            // Mandatory call to complete the auth
-	            session.finishAuthentication();
+		String json = appSharedPrefs.getString("MyDropboxSessionSave", "");
 
-	            // Store it locally in our app for later use
-	            TokenPair tokens = session.getAccessTokenPair();
-	            //storeKeys(tokens.key, tokens.secret);
-	            setLoggedIn(true);
-	            
-	            mDBApi.getSession().finishAuthentication();
-	            new LongOperation().execute("");
-	        } catch (IllegalStateException e) {
-	//Keep this toast.. It will show you the completed authentication..
-	            Toast.makeText(getBaseContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-	            Log.i("Dropbox", "Error authenticating", e);
-	        }
-	    }
-	}    
-	
-	private void storeKeys(String key, String secret) {
-	    // Save the access key for later
-	    SharedPreferences prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, 0);
-	    Editor edit = prefs.edit();
-	    edit.putString(APP_KEY, key);
-	    edit.putString(APP_SECRET, secret);
-	    edit.commit();
-	}
-	public void setLoggedIn(boolean loggedIn) {
-	    mIsLoggedIn = loggedIn;
-	}
-	public boolean isLoggedIn() {
-	    return mIsLoggedIn;
-	}
-	
-	private class LongOperation extends AsyncTask<String, Void, String> {
-		String usertoken;
-        @Override
-        protected String doInBackground(String... params) {
-        	 // Required to complete auth, sets the access token on the session
-           
+		if (json == "") { // no data
+			AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+			AndroidAuthSession session = new AndroidAuthSession(appKeys,
+					ACCESS_TYPE);
+			mDBApi = new DropboxAPI<AndroidAuthSession>(session);
 
-            String accessToken = mDBApi.getSession().getOAuth2AccessToken();
-            usertoken = accessToken;
-            
-            DataManager dm = DataManager.getInstance();
-          
-            
-           /* Entry contact = null;
-			try {
-				contact = mDBApi.metadata("/", 0, null, true, null);
-			} catch (DropboxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			// this is start authentication
+			mDBApi.getSession().startOAuth2Authentication(MainActivity.this);
+
+		} else { // data Save
+			AndroidAuthSession sessionStore = gson.fromJson(json,
+					AndroidAuthSession.class);
+			mDBApi = new DropboxAPI<AndroidAuthSession>(sessionStore);
+			//new LongOperation().execute("");
+			
+		}
+
+		//Botón iniciar sesión manual
+		mButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				dm.comeFromList = false;
+				
+				AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+				AndroidAuthSession session = new AndroidAuthSession(appKeys,
+						ACCESS_TYPE);
+				mDBApi = new DropboxAPI<AndroidAuthSession>(session);
+
+				// this is start authentication
+				mDBApi.getSession()
+						.startOAuth2Authentication(MainActivity.this);
+
 			}
+		});
 
-            List<Entry> CFolder = contact.contents;
-            for (Entry entry : CFolder) {
-            Log.i("DbExampleLog", "Filename: " + entry.fileName());}
-            */
-            
-       
-            checkSubLevels("/");
-            	    
-            
-            	    Log.i("Finish!!!!!!!!!!!!!!!!!!","");
-            mDBApi.getSession().finishAuthentication();
+		// Clear session
+		mButton2.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				SharedPreferences preferences = PreferenceManager
+						.getDefaultSharedPreferences(getApplicationContext());
+
+				preferences.edit().remove("MyDropboxSessionSave").commit();
+				Toast.makeText(getApplicationContext(), "Session clear",
+						Toast.LENGTH_SHORT).show();
+
+				DataManager dm = DataManager.getInstance();
+				if(dm.userBooks.size()!=0){
+				dm.userBooks.clear();
+				}
+				if(dm.userEpubBooks.size()!=0){
+				dm.userEpubBooks.clear();
+				}
+				dm.isLogged = false;
+
+			}
+		});
+
+	}
+
+	// This get call after StartAuthentication..
+	protected void onResume() {
+		super.onResume();
+	 
+			        
+		if (dm.isLogged) {
+			new LongOperation().execute("");
+		} else {
+
+			if (dm.comeFromList) {
+			 
+
+			} else {
+				
+				// check if we have an active session
+				SharedPreferences appSharedPrefs = PreferenceManager
+						.getDefaultSharedPreferences(this.getApplicationContext());
+				Gson gson = new Gson();
+			
+				String json = appSharedPrefs.getString("MyDropboxSessionSave", "");
+
+				if (json == "") { // no data
+					AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+					AndroidAuthSession session = new AndroidAuthSession(appKeys,
+							ACCESS_TYPE);
+					mDBApi = new DropboxAPI<AndroidAuthSession>(session);
+
+					// this is start authentication
+					//mDBApi.getSession().startOAuth2Authentication(MainActivity.this);
+
+				} else { // data Save
+					AndroidAuthSession sessionStore = gson.fromJson(json,
+							AndroidAuthSession.class);
+					mDBApi = new DropboxAPI<AndroidAuthSession>(sessionStore);
+					dm.isLogged = true;
+					dm.comeFromList = false;
+					
+					//new LongOperation().execute("");
+					
+				}
+				
+				
+				
+				AndroidAuthSession session = mDBApi.getSession();
+
+				if (session.authenticationSuccessful()) {
+					storeSession(mDBApi.getSession());
+					dm.isLogged = true;
+					dm.comeFromList = false;
+					try {
+						session.finishAuthentication();
+
+						mDBApi.getSession().finishAuthentication();
+						new LongOperation().execute("");
+
+					} catch (IllegalStateException e) {
+
+						Toast.makeText(getBaseContext(),
+								e.getLocalizedMessage(), Toast.LENGTH_SHORT)
+								.show();
+						Log.i("Dropbox", "Error authenticating", e);
+					}
+				}
+				
+			}
+		}
+	}
+
+	private void storeSession(AndroidAuthSession session) {
+		// Save session
+		SharedPreferences appSharedPrefs = PreferenceManager
+				.getDefaultSharedPreferences(this.getApplicationContext());
+		Editor prefsEditor = appSharedPrefs.edit();
+		Gson gson = new Gson();
+		String json = gson.toJson(session);
+		prefsEditor.putString("MyDropboxSessionSave", json);
+		prefsEditor.commit();
+
+	}
+
+	private class LongOperation extends AsyncTask<String, Void, String> {
+		  
+		@Override
+		protected String doInBackground(String... params) {
+		 
+			checkSubLevels("/");
+  
+			dm.userBooks = allBooks;
+			dm.userEpubBooks = epubBooks;
+
+			Intent myIntent = new Intent(getBaseContext(), BooksList.class);
+			startActivity(myIntent);
 			return "";
-           
-        }
+			
+		}
 
-        @Override
-        protected void onPostExecute(String result) {
-        	  Toast.makeText(getApplicationContext(), usertoken, 
-           		   Toast.LENGTH_LONG).show();
-            // might want to change "executed" for the returned string passed
-            // into onPostExecute() but that is upto you
-        }
+		@Override
+		protected void onPostExecute(String result) {
+			//Toast.makeText(getApplicationContext(), "Loaded",Toast.LENGTH_LONG).show();
+			 
+		}
 
-        @Override
-        protected void onPreExecute() {}
+		@Override
+		protected void onPreExecute() {
+		}
 
-        @Override
-        protected void onProgressUpdate(Void... values) {}
-    }
-	
-	public void checkSubLevels (String dir){
-		DataManager dm = DataManager.getInstance();
+		@Override
+		protected void onProgressUpdate(Void... values) {
+		}
+	}
+
+	public void checkSubLevels(String dir) {
+	 
 		Entry dropboxDir = null;
 		try {
 			dropboxDir = mDBApi.metadata(dir, 0, null, true, null);
@@ -194,35 +245,37 @@ final static public String ACCOUNT_PREFS_NAME = "Dropbox_Data";
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-	    for (Entry e : dropboxDir.contents) {
-	        if (!e.isDeleted) {
-	           
-	            if(e.isDir){
-	            	checkSubLevels(e.path);
-	            	
-	            } else { 
-	            	Book book = new Book(e.fileName(), e.modified, e.mimeType);
-	  	            Log.i("Item Name",e.fileName());
-	  	            Log.i("Item Date",e.modified);
-	  	            Log.i("Item Date",e.mimeType);
-	  	           // dm.addBook(book);  //check!!!!!!!!!!!!!!!
-	            }
-	        }
-	    }
-		
-	}
 
-	  
+		for (Entry e : dropboxDir.contents) {
+			if (!e.isDeleted) {
+
+				if (e.isDir) {
+					checkSubLevels(e.path);
+
+				} else {
+					Book book = new Book(e.fileName(), e.modified, e.mimeType);
+					Log.i("Item Name", e.fileName());
+					Log.i("Item Date", e.modified);
+					Log.i("Item Date", e.mimeType);
+
+					allBooks.add(book);
+					if (e.mimeType.equals("application/epub+zip")) {
+						if (!epubBooks.contains(book)) {
+							epubBooks.add(book);
+						}
+					}
+
+				}
+			}
+		}
+
+	}
 	
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	public void onBackPressed() { //suspend app
+		 moveTaskToBack(true);
+		 
 	}
 	
 
-	
-	
 }

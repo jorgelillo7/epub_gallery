@@ -5,11 +5,17 @@ import java.util.ArrayList;
 import models.Book;
 import android.util.Log;
 
-
+/*
+ * Obtenemos todos los libros electronicos del usuario para futuras versiones (userBooks)
+ * Para la esta primera versión usaremos la variable userEpubBooks
+ * */
 public class DataManager {
 
 	private static DataManager instance = null;
-	public ArrayList<Book> userBooks;
+	public ArrayList<Book> userBooks = new ArrayList<Book>();
+	public ArrayList<Book> userEpubBooks = new ArrayList<Book>();;
+	public boolean isLogged= false;
+	public boolean comeFromList= false;
 
 	
 	DataManager() {      
@@ -37,12 +43,17 @@ public class DataManager {
 	}
 	
 	
-	//TODO get all epubs
-
-/*	public ArrayList<Book> getBooksEpub() {
-		
-		return userBooks;
+	public ArrayList<Book> getEpubBooks() {
+		return userEpubBooks;
 	}
-	*/
+
+	public void setEpubBooksArray(ArrayList<Book> books) {
+		this.userEpubBooks = books;
+	}
+	
+	public void addEpubBook(Book b) {
+		this.userEpubBooks.add(b);
+	}
+	
 	
 }

@@ -9,5 +9,6 @@
     <string name="bSend">Enviar</string>
     <string name="tlogin">Login con dropbox</string>
     <string name="tTitle">Books BQ</string>
+    <string name="closeSession">Cerrar Sesión</string>
 
 </resources>
