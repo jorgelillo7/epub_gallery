@@ -4,13 +4,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="62dp"
-        android:text="Listado libros" />
+   <GridView
+         android:numColumns="auto_fit"
+         android:gravity="center"
+         android:columnWidth="200dp"
+         android:stretchMode="columnWidth"
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent"
+         android:layout_marginLeft="15dp"
+         android:id="@+id/grid"
+         />
 
 </RelativeLayout>

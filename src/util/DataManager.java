@@ -1,6 +1,8 @@
 package util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import models.Book;
 import android.util.Log;
@@ -53,6 +55,35 @@ public class DataManager {
 	
 	public void addEpubBook(Book b) {
 		this.userEpubBooks.add(b);
+	}
+	
+	
+	public void orderBooksByTitle(){
+		
+		 Collections.sort(userEpubBooks, new Comparator<Object>(){
+
+		        public int compare(Object o1, Object o2) {
+		            Book p1 = (Book) o1;
+		            Book p2 = (Book) o2;
+		           return p1.getBookName().compareToIgnoreCase(p2.getBookName());
+		        }
+
+		    });
+		 
+	}
+	
+	public void orderBooksByDate(){
+		
+		 Collections.sort(userEpubBooks, new Comparator<Object>(){
+
+		        public int compare(Object o1, Object o2) {
+		            Book p1 = (Book) o1;
+		            Book p2 = (Book) o2;
+		           return p1.getCreationDate().compareToIgnoreCase(p2.getCreationDate());
+		        }
+
+		    });
+		 
 	}
 	
 	

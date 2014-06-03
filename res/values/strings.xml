@@ -9,6 +9,16 @@
     <string name="bSend">Enviar</string>
     <string name="tlogin">Login con dropbox</string>
     <string name="tTitle">Books BQ</string>
+    
+    <!-- Menu -->
     <string name="closeSession">Cerrar Sesión</string>
+    <string name="dateOrder">Ordenar por fecha</string>
+    <string name="titleOrder">Ordenar por título</string>
+    
+    <!-- Detail View -->
+     <string name="lname">Nombre:</string>
+ 	 <string name="ldate">Creación:</string>
+ 	 <string name="lformat">Formato:</string>
+ 	 <string name="lsize">Tamaño:</string>
 
 </resources>

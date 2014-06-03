@@ -27,11 +27,17 @@ import android.widget.Button;
 import android.widget.Toast;
 
 /*TODO
+ *  Sustituir tap -> double tap 
+ 
  *  Revisar guardado de sesion :S
  *  Añadir máscara de carga
+ *  
+ *  Future:
  *  Mejorar iconos/backgrounds/estilos...
- * 
- * 
+ *  Soporte otros idiomas
+ *  Soporte versiones android antiguas
+ *  Versión ipad
+
  * 
  * 
  * */
@@ -60,8 +66,16 @@ public class MainActivity extends Activity {
 		mButton = (Button) findViewById(R.id.bSend);
 		mButton2 = (Button) findViewById(R.id.bClearSession);
 		
+		AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+		AndroidAuthSession session = new AndroidAuthSession(appKeys,
+				ACCESS_TYPE);
+		mDBApi = new DropboxAPI<AndroidAuthSession>(session);
+
+		// this is start authentication
+		mDBApi.getSession().startOAuth2Authentication(MainActivity.this);
+		
 		// check if we have an active session
-		SharedPreferences appSharedPrefs = PreferenceManager
+		/*SharedPreferences appSharedPrefs = PreferenceManager
 				.getDefaultSharedPreferences(this.getApplicationContext());
 		Gson gson = new Gson();
 	
@@ -82,7 +96,7 @@ public class MainActivity extends Activity {
 			mDBApi = new DropboxAPI<AndroidAuthSession>(sessionStore);
 			//new LongOperation().execute("");
 			
-		}
+		}*/
 
 		//Botón iniciar sesión manual
 		mButton.setOnClickListener(new OnClickListener() {
@@ -129,18 +143,8 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 	 
-			        
-		if (dm.isLogged) {
-			new LongOperation().execute("");
-		} else {
-
-			if (dm.comeFromList) {
-			 
-
-			} else {
-				
 				// check if we have an active session
-				SharedPreferences appSharedPrefs = PreferenceManager
+				/*SharedPreferences appSharedPrefs = PreferenceManager
 						.getDefaultSharedPreferences(this.getApplicationContext());
 				Gson gson = new Gson();
 			
@@ -165,13 +169,13 @@ public class MainActivity extends Activity {
 					//new LongOperation().execute("");
 					
 				}
-				
+				*/
 				
 				
 				AndroidAuthSession session = mDBApi.getSession();
 
 				if (session.authenticationSuccessful()) {
-					storeSession(mDBApi.getSession());
+					//storeSession(mDBApi.getSession());
 					dm.isLogged = true;
 					dm.comeFromList = false;
 					try {
@@ -187,13 +191,13 @@ public class MainActivity extends Activity {
 								.show();
 						Log.i("Dropbox", "Error authenticating", e);
 					}
-				}
 				
-			}
+				
+			
 		}
 	}
 
-	private void storeSession(AndroidAuthSession session) {
+	/*private void storeSession(AndroidAuthSession session) {
 		// Save session
 		SharedPreferences appSharedPrefs = PreferenceManager
 				.getDefaultSharedPreferences(this.getApplicationContext());
@@ -204,7 +208,7 @@ public class MainActivity extends Activity {
 		prefsEditor.commit();
 
 	}
-
+*/
 	private class LongOperation extends AsyncTask<String, Void, String> {
 		  
 		@Override
@@ -253,10 +257,11 @@ public class MainActivity extends Activity {
 					checkSubLevels(e.path);
 
 				} else {
-					Book book = new Book(e.fileName(), e.modified, e.mimeType);
+					Book book = new Book(e.fileName(), e.modified, e.mimeType, e.size);
 					Log.i("Item Name", e.fileName());
 					Log.i("Item Date", e.modified);
 					Log.i("Item Date", e.mimeType);
+					Log.i("Item Date", e.icon);
 
 					allBooks.add(book);
 					if (e.mimeType.equals("application/epub+zip")) {

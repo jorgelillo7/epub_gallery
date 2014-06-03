@@ -1,5 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
+     <item
+        android:id="@+id/titleOrder"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/titleOrder"/>
+      <item
+        android:id="@+id/dateOrder"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/dateOrder"/>
+      
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
