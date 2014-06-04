@@ -1,11 +1,19 @@
-package com.example.books;
+package com.jlillo.epubgallery.controllers;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
-import models.Book;
-import util.CustomGrid;
-import util.DataManager;
+import com.jlillo.epubgallery.MainActivity;
+import com.jlillo.epubgallery.R;
+import com.jlillo.epubgallery.R.drawable;
+import com.jlillo.epubgallery.R.id;
+import com.jlillo.epubgallery.R.layout;
+import com.jlillo.epubgallery.R.menu;
+import com.jlillo.epubgallery.models.Book;
+import com.jlillo.epubgallery.util.CustomGrid;
+import com.jlillo.epubgallery.util.DataManager;
+
+
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
@@ -29,13 +37,21 @@ public class BooksList extends Activity {
 	int[] imageArray;
 	DataManager dm = DataManager.getInstance();
 	View mText;
+	TextView nobook;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.list_screen);
 		DataManager dm = DataManager.getInstance();
-  
+		grid = (GridView) findViewById(R.id.grid);
+		
+		if (dm.userEpubBooks.size() == 0){
+			nobook =  (TextView) findViewById(R.id.textNoBooks);
+			nobook.setVisibility(View.VISIBLE);
+			grid.setVisibility(View.GONE);
+		}
+		
 		bookList = new String[dm.userEpubBooks.size()];
 		for (int i = 0; i < dm.userEpubBooks.size(); i++) {
 			Book aux = (Book) dm.userEpubBooks.get(i);
@@ -50,7 +66,7 @@ public class BooksList extends Activity {
 
 		CustomGrid adapter = new CustomGrid(BooksList.this, bookList,
 				imageArray);
-		grid = (GridView) findViewById(R.id.grid);
+		
 		grid.setAdapter(adapter);
 		grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -97,19 +113,11 @@ public class BooksList extends Activity {
 	}
 
 	public void closeSession() {
-		/*
-		 * SharedPreferences preferences = PreferenceManager
-		 * .getDefaultSharedPreferences(getApplicationContext());
-		 * 
-		 * preferences.edit().remove("MyDropboxSessionSave").commit();
-		 * 
-		 * DataManager dm = DataManager.getInstance(); dm.userBooks.clear();
-		 * dm.userEpubBooks.clear(); dm.isLogged = false; dm.comeFromList =
-		 * true;
-		 * 
-		 * Intent myIntent = new Intent(getBaseContext(), MainActivity.class);
-		 * startActivity(myIntent);
-		 */
+		 
+		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.putExtra("EXIT", true);
+		startActivity(intent);
 
 	}
 

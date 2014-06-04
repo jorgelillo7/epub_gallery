@@ -1,4 +1,4 @@
-package models;
+package com.jlillo.epubgallery.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;

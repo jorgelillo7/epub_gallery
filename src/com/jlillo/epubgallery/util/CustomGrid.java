@@ -1,6 +1,6 @@
-package util;
+package com.jlillo.epubgallery.util;
 
-import com.example.books.R;
+import com.jlillo.epubgallery.R;
 
 import android.content.Context;
 import android.view.LayoutInflater;

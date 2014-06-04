@@ -1,7 +1,11 @@
-package com.example.books;
+package com.jlillo.epubgallery.controllers;
 
-import models.Book;
-import util.DataManager;
+import com.jlillo.epubgallery.R;
+import com.jlillo.epubgallery.R.id;
+import com.jlillo.epubgallery.R.layout;
+import com.jlillo.epubgallery.models.Book;
+import com.jlillo.epubgallery.util.DataManager;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

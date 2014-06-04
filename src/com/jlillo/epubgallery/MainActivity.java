@@ -1,8 +1,6 @@
-package com.example.books;
+package com.jlillo.epubgallery;
  
 import java.util.ArrayList;
-import models.Book;
-import util.DataManager;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.DropboxAPI.Entry;
@@ -10,7 +8,12 @@ import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.AppKeyPair;
 import com.dropbox.client2.session.Session.AccessType;
+import com.jlillo.epubgallery.R;
 import com.google.gson.Gson;
+import com.jlillo.epubgallery.controllers.BooksList;
+import com.jlillo.epubgallery.models.Book;
+import com.jlillo.epubgallery.util.DataManager;
+
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,12 +30,14 @@ import android.widget.Button;
 import android.widget.Toast;
 
 /*TODO
- *  Sustituir tap -> double tap 
  
- *  Revisar guardado de sesion :S
- *  Añadir máscara de carga
+ *  Revisar guardado de sesion-> probando con SharedPreferences
+ *  Mejorar navegación
+ *  Mostrar imágenes de portada de cada libro
  *  
  *  Future:
+ *  Sustituir tap -> double tap 
+ *  Adaptar pantalla detalle libros
  *  Mejorar iconos/backgrounds/estilos...
  *  Soporte otros idiomas
  *  Soporte versiones android antiguas
@@ -63,9 +68,13 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-		mButton = (Button) findViewById(R.id.bSend);
-		mButton2 = (Button) findViewById(R.id.bClearSession);
 		
+		if (getIntent().getBooleanExtra("EXIT", false)) {
+		    finish();
+		} else {
+		
+		mButton = (Button) findViewById(R.id.bSend);
+		 
 		AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
 		AndroidAuthSession session = new AndroidAuthSession(appKeys,
 				ACCESS_TYPE);
@@ -114,7 +123,8 @@ public class MainActivity extends Activity {
 
 			}
 		});
-
+		}
+/*
 		// Clear session
 		mButton2.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -135,7 +145,7 @@ public class MainActivity extends Activity {
 				dm.isLogged = false;
 
 			}
-		});
+		});*/
 
 	}
 

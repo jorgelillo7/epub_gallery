@@ -1,10 +1,11 @@
-package util;
+package com.jlillo.epubgallery.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import models.Book;
+import com.jlillo.epubgallery.models.Book;
+
 import android.util.Log;
 
 /*
