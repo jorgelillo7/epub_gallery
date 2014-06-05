@@ -48,6 +48,10 @@
             android:name="com.jlillo.epubgallery.controllers.DetailActivity"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name="com.jlillo.epubgallery.controllers.BigImageActivity"
+            android:screenOrientation="portrait" >
+        </activity>
     </application>
 
 </manifest>

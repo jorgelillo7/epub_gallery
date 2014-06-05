@@ -13,7 +13,6 @@ import com.jlillo.epubgallery.models.Book;
 import com.jlillo.epubgallery.util.CustomGrid;
 import com.jlillo.epubgallery.util.DataManager;
 
-
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
@@ -45,20 +44,20 @@ public class BooksList extends Activity {
 		setContentView(R.layout.list_screen);
 		DataManager dm = DataManager.getInstance();
 		grid = (GridView) findViewById(R.id.grid);
-		
-		if (dm.userEpubBooks.size() == 0){
-			nobook =  (TextView) findViewById(R.id.textNoBooks);
+
+		if (dm.userEpubBooks.size() == 0) {
+			nobook = (TextView) findViewById(R.id.textNoBooks);
 			nobook.setVisibility(View.VISIBLE);
 			grid.setVisibility(View.GONE);
 		}
-		
+
 		bookList = new String[dm.userEpubBooks.size()];
 		for (int i = 0; i < dm.userEpubBooks.size(); i++) {
 			Book aux = (Book) dm.userEpubBooks.get(i);
 			bookList[i] = aux.getBookName() + " - " + aux.getCreationDate();
 		}
-		
-		//mock for all the books 
+
+		// mock for all the books
 		imageArray = new int[dm.userEpubBooks.size()];
 		for (int i = 0; i < dm.userEpubBooks.size(); i++) {
 			imageArray[i] = R.drawable.epub_mock;
@@ -66,19 +65,23 @@ public class BooksList extends Activity {
 
 		CustomGrid adapter = new CustomGrid(BooksList.this, bookList,
 				imageArray);
-		
+
 		grid.setAdapter(adapter);
 		grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-			//	Toast.makeText(BooksList.this,"You Clicked at " + bookList[+position], Toast.LENGTH_SHORT).show();
-				
+				// Toast.makeText(BooksList.this,"You Clicked at " +
+				// bookList[+position], Toast.LENGTH_SHORT).show();
+
 				DataManager dm = DataManager.getInstance();
-				Intent intent = new Intent(getBaseContext(), DetailActivity.class);
+				Intent intent = new Intent(getBaseContext(),
+						DetailActivity.class);
 				Bundle b = new Bundle();
-				b.putSerializable("bookSelected", (Serializable) dm.userEpubBooks.get(position)); //Your id
-				intent.putExtras(b); //Put your id to your next Intent
+				b.putSerializable("bookSelected",
+						(Serializable) dm.userEpubBooks.get(position)); // Your
+																		// id
+				intent.putExtras(b); // Put your id to your next Intent
 				startActivity(intent);
 				finish();
 			}
@@ -113,7 +116,7 @@ public class BooksList extends Activity {
 	}
 
 	public void closeSession() {
-		 
+
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.putExtra("EXIT", true);
